@@ -5,19 +5,21 @@ function [L,dL,ddL] = neglogli_poissGLM_zaso(wts, zaso, fnlin)
 % Compute negative log-likelihood of data under Poisson regression model,
 % plus gradient and Hessian
 %
-% INPUT:
+% INPUT
 %   wts: (m x 1) regression weights
 %   zaso: Zhe Abstract Sample Object
 %   fnlin: @(x)->(f,df,ddf) func handle for nonlinearity 
 %	   (must return f, df and ddf; derivatives of f)
 %
-% OUTPUT:
+% OUTPUT
 %   L: (1 x 1) negative log-likelihood
 %  dL: (m x 1) gradient of L wrt weights
 % ddL: (m x m) Hessian of L wrt weights
 %
 % Example usage:
 %   fminunc(@(w) neglogli_poissGLM_zaso(w, zaso, fnlin), wInit)
+%
+% See Also: neglogli_poissGLM
 
 m = numel(wts);
 
@@ -34,12 +36,14 @@ if isequal(fnlin, @expfun) || isequal(fnlin, @exp) || strcmpi(exp, 'exp')
 		@(x,y) neglogli_poissGLM_sub_exp(x, y, wts, 2));
 	    L = r(1);
 	    dL = r(2);
-	otherwise
+	case 3
 	    r = zasoFxysum(zaso, ...
 		@(x,y) neglogli_poissGLM_sub_exp(x, y, wts, 3));
 	    L = r(1);
 	    dL = r(1 + (1:m));
 	    ddL = reshape(r(m+2:end), m, m);
+	otherwise
+	    error('Only up to 3 output arguments');
     end
     return
 end
@@ -51,11 +55,13 @@ switch nargout
         r = zasoFxysum(zaso, @(x,y) neglogli_poissGLM_sub(x, y, wts, fnlin, 2));
         L = r(1);
         dL = r(2);
-    otherwise
+    case 3
         r = zasoFxysum(zaso, @(x,y) neglogli_poissGLM_sub(x, y, wts, fnlin, 3));
         L = r(1);
         dL = r(1 + (1:m));
         ddL = reshape(r(m+2:end), m, m);
+    otherwise
+	error('Only up to 3 output arguments');
 end
 
 end % neglogli_poissGLM
@@ -102,16 +108,16 @@ f = exp(xproj);
 
 switch choice
     case 1
-        L = -y'*xproj + sum(f);
+        L = -y' * xproj + sum(f);
     case 2
         L = zeros(m+1, 1);
-        L(1) = -y'*xproj + sum(f);
-        L(1 + (1:m)) = x'*(f - y);
+        L(1) = -y' * xproj + sum(f);
+        L(1 + (1:m)) = x' * (f - y);
     case 3
         L = zeros(m^2+m+1, 1);
-        L(1) = -y'*xproj + sum(f);
-        L(1 + (1:m)) = x'*(f - y);
-	H = x'*bsxfun(@times,x,ddf);
+        L(1) = -y' * xproj + sum(f);
+        L(1 + (1:m)) = x' * (f - y);
+	H = x' * bsxfun(@times, x, f);
         L(m+2:end) = H(:);
 end
 end % neglogli_poissGLM_sub_exp
