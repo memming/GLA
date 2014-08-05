@@ -7,7 +7,7 @@ function [L,dL,ddL] = neglogli_poissGLM_zaso(wts, zaso, fnlin)
 %
 % INPUT:
 %   wts: (m x 1) regression weights
-%   zaso: zhe abstract sample object
+%   zaso: Zhe Abstract Sample Object
 %   fnlin: @(x)->(f,df,ddf) func handle for nonlinearity 
 %	   (must return f, df and ddf; derivatives of f)
 %
@@ -22,22 +22,26 @@ function [L,dL,ddL] = neglogli_poissGLM_zaso(wts, zaso, fnlin)
 m = numel(wts);
 
 if isequal(fnlin, @expfun) || isequal(fnlin, @exp) || strcmpi(exp, 'exp')
-% fast special computation for exponential nonlinearity
-% Note that this trick of comparing function handles doesn't work for ones that
-% are loaded from MAT files.
-switch nargout
-    case 1
-	L = zasoFxysum(zaso, @(x,y) neglogli_poissGLM_sub_exp(x, y, wts, 1));
-    case 2
-	r = zasoFxysum(zaso, @(x,y) neglogli_poissGLM_sub_exp(x, y, wts, 2));
-	L = r(1);
-	dL = r(2);
-    otherwise
-	r = zasoFxysum(zaso, @(x,y) neglogli_poissGLM_sub_exp(x, y, wts, 3));
-	L = r(1);
-	dL = r(1 + (1:m));
-	ddL = reshape(r(m+2:end), m, m);
-end
+    % fast special computation for exponential nonlinearity
+    % Note that this trick of comparing function handles doesn't work for ones
+    % that are loaded from MAT files.
+    switch nargout
+	case 1
+	    L = zasoFxysum(zaso, ...
+		@(x,y) neglogli_poissGLM_sub_exp(x, y, wts, 1));
+	case 2
+	    r = zasoFxysum(zaso, ...
+		@(x,y) neglogli_poissGLM_sub_exp(x, y, wts, 2));
+	    L = r(1);
+	    dL = r(2);
+	otherwise
+	    r = zasoFxysum(zaso, ...
+		@(x,y) neglogli_poissGLM_sub_exp(x, y, wts, 3));
+	    L = r(1);
+	    dL = r(1 + (1:m));
+	    ddL = reshape(r(m+2:end), m, m);
+    end
+    return
 end
 
 switch nargout
@@ -94,21 +98,19 @@ function L = neglogli_poissGLM_sub_exp(x, y, wts, choice)
 
 m = numel(wts);
 xproj = x*wts;
+f = exp(xproj);
 
 switch choice
     case 1
-        f = fnlin(xproj);
         L = -y'*xproj + sum(f);
     case 2
-        [f,df] = fnlin(xproj);
         L = zeros(m+1, 1);
         L(1) = -y'*xproj + sum(f);
-        L(1 + (1:m)) = x'*(df - y);
+        L(1 + (1:m)) = x'*(f - y);
     case 3
-        [f,df,ddf] = fnlin(xproj);
         L = zeros(m^2+m+1, 1);
         L(1) = -y'*xproj + sum(f);
-        L(1 + (1:m)) = x'*(df - y);
+        L(1 + (1:m)) = x'*(f - y);
 	H = x'*bsxfun(@times,x,ddf);
         L(m+2:end) = H(:);
 end
