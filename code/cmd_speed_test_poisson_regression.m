@@ -9,9 +9,9 @@ N = 100000;
 wTrue = sin((1:m)'/10)/10;
 x = randn(m, N);
 bTrue = -3;
-lambda = exp(wTrue' * x + bTrue);
-y = poissrnd(lambda);
 fnlin = @expfun;
+lambda = fnlin(wTrue' * x + bTrue);
+y = poissrnd(lambda);
 w0 = zeros(numel(wTrue)+1, 1);
 fprintf('Mean [%f], Sparsity [%f]\n', mean(y), nnz(y)/N);
 
