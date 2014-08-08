@@ -23,6 +23,7 @@ function [L,dL,ddL] = neglogli_poissGLM_zaso(wts, zaso, fnlin)
 
 m = numel(wts);
 
+% fprintf('Somebody''s asking for [%d] arguments\n', nargout);
 if isequal(fnlin, @expfun) || isequal(fnlin, @exp) || strcmpi(exp, 'exp')
     % fast special computation for exponential nonlinearity
     % Note that this trick of comparing function handles doesn't work for ones
@@ -35,7 +36,7 @@ if isequal(fnlin, @expfun) || isequal(fnlin, @exp) || strcmpi(exp, 'exp')
 	    r = zasoFxysum(zaso, ...
 		@(x,y) neglogli_poissGLM_sub_exp(x, y, wts, 2));
 	    L = r(1);
-	    dL = r(2);
+	    dL = r(2:end);
 	case 3
 	    r = zasoFxysum(zaso, ...
 		@(x,y) neglogli_poissGLM_sub_exp(x, y, wts, 3));
@@ -54,7 +55,7 @@ switch nargout
     case 2
         r = zasoFxysum(zaso, @(x,y) neglogli_poissGLM_sub(x, y, wts, fnlin, 2));
         L = r(1);
-        dL = r(2);
+	dL = r(2:end);
     case 3
         r = zasoFxysum(zaso, @(x,y) neglogli_poissGLM_sub(x, y, wts, fnlin, 3));
         L = r(1);
@@ -118,6 +119,29 @@ switch choice
         L(1) = -y' * xproj + sum(f);
         L(1 + (1:m)) = x' * (f - y);
 	H = x' * bsxfun(@times, x, f);
+
+	%{
+	temp = zeros(size(x));
+	for k = 1:size(x,1)
+	    temp(k, :) = x(k, :) * f(k);
+	end
+	H = x' * temp;
+
+	H = zeros(m, m);
+	for k = 1:size(x,1)
+	    H = H + x(k, :)' * x(k, :) * f(k);
+	end
+
+	H = zeros(m, m);
+	for k = 1:size(x,1)
+	    for k1 = 1:m
+		for k2 = 1:m
+		    H(k1, k2) = H(k1, k2) + x(k, k1) * x(k, k2) * f(k);
+		end
+	    end
+	end
+	%}
+
         L(m+2:end) = H(:);
 end
 end % neglogli_poissGLM_sub_exp
