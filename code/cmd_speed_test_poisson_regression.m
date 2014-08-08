@@ -4,8 +4,8 @@ addpath('zaso');
 addpath('nlfuns');
 
 %% Generate fake data
-m = 100; % # of variables
-N = 100000;
+m = 2000; % # of variables
+N = 5000;
 wTrue = sin((1:m)'/10)/10;
 x = randn(m, N);
 bTrue = -3;
@@ -19,9 +19,9 @@ fprintf('Mean [%f], Sparsity [%f]\n', mean(y), nnz(y)/N);
 
 %% zaso version
 % TODO why the hell do I need to transpose????
-disp('>>> zaso, fminunc');
+disp('>>> zaso, fminunc, Newton');
 tic;
-zaso = encapsulateRaw([x; ones(1,N)]', y'); 
+zaso = encapsulateRaw([x; ones(1,N)]', y', [], [], true); 
 
 optimOpts = optimoptions(@fminunc, ...
     'GradObj', 'on', 'Hessian', 'on', 'Display', 'off');
@@ -31,6 +31,46 @@ t1 = toc;
 
 fprintf('[%f sec] # function call [%d], # of iterations [%d]\n', ...
     t1, output1.funcCount, output1.iterations);
+
+% BFGS
+disp('>>> zaso, fminunc, medium-scale?');
+tic;
+zaso = encapsulateRaw([x; ones(1,N)]', y', [], [], true); 
+
+%optimOpts = optimoptions(@fminunc, 'LargeScale', 'off', ...
+%    'GradObj', 'on', 'Hessian', 'off', 'Display', 'off');
+optimOpts = optimset('LargeScale', 'off', ...
+    'GradObj', 'on', 'Hessian', 'off', 'Display', 'off');
+[wOpt13, nLL13, exitflag13, output13] = fminunc(...
+    @(w) neglogli_poissGLM_zaso(w, zaso, fnlin), w0, optimOpts);
+t13 = toc;
+fprintf('[%f sec] # function call [%d], # of iterations [%d]\n', ...
+    t13, output13.funcCount, output13.iterations);
+
+disp('>>> zaso, fminunc, BFGS? Quasi-Newton? Hessian off');
+tic;
+zaso = encapsulateRaw([x; ones(1,N)]', y', [], [], true); 
+
+optimOpts = optimoptions(@fminunc, 'Algorithm', 'quasi-newton', ...
+    'GradObj', 'on', 'Hessian', 'off', 'Display', 'off');
+[wOpt14, nLL14, exitflag14, output14] = fminunc(...
+    @(w) neglogli_poissGLM_zaso(w, zaso, fnlin), w0, optimOpts);
+t14 = toc;
+fprintf('[%f sec] # function call [%d], # of iterations [%d]\n', ...
+    t14, output14.funcCount, output14.iterations);
+
+% % PCG?
+% disp('>>> zaso, fminunc, PCG??');
+% tic;
+% zaso = encapsulateRaw([x; ones(1,N)]', y', [], [], true); 
+% optimOpts = optimoptions(@fminunc, 'Algorithm', 'trust-region', ...
+%     'GradObj', 'on', 'Hessian', 'off', 'Display', 'off');
+% [wOpt12, nLL12, exitflag12, output12] = fminunc(...
+%     @(w) neglogli_poissGLM_zaso(w, zaso, fnlin), w0, optimOpts);
+% t12 = toc;
+% 
+% fprintf('[%f sec] # function call [%d], # of iterations [%d], # of CG iterations [%d]\n', ...
+%     t12, output12.funcCount, output12.iterations, output12.cgiterations);
 
 %% minFunc, Newton
 disp('>>> zaso, minFunc, Newton');
@@ -46,9 +86,28 @@ opts1 = struct('maxFunEvals', 100, 'Method', 'newton', 'display', 'none');
     @(w)(neglogli_poissGLM_zaso(w, zaso, fnlin)), w0, opts1);
 
 t2 = toc;
-
 fprintf('[%f sec] # function call [%d], # of iterations [%d]\n', ...
     t2, output2.funcCount, output2.iterations);
+
+%% minFunc, CG
+disp('>>> zaso, minFunc, CG');
+if exist('minFunc') ~= 2
+    error('Need minFunc for testing!');
+end
+tic;
+zaso = encapsulateRaw([x; ones(1,N)]', y'); 
+
+% opts21 = struct('maxFunEvals', 1000, 'Method', 'cg', ...
+%     'display', 'iter', 'optTol', 1e-6, 'progTol', 1e-8);
+opts21 = struct('maxFunEvals', 1000, 'Method', 'cg', ...
+    'display', 'none', 'optTol', 1e-6, 'progTol', 1e-8);
+[wOpt21, nLL21, exitflag21, output21] = minFunc(...
+    @(w)(neglogli_poissGLM_zaso(w, zaso, fnlin)), w0, opts21);
+
+t21 = toc;
+
+fprintf('[%f sec] # function call [%d], # of iterations [%d]\n', ...
+    t21, output21.funcCount, output21.iterations);
 
 %% Non-zaso version
 disp('>>> no-zaso, fminunc');
