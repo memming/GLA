@@ -73,7 +73,7 @@ function L = neglogli_poissGLM_sub(x, y, wts, fnlin, choice)
 %	   3: likelihood, graidient, and Hessian
 
 m = numel(wts);
-xproj = x*wts;
+xproj = wts' * x;
 
 switch choice
     case 1
@@ -103,21 +103,25 @@ function L = neglogli_poissGLM_sub_exp(x, y, wts, choice)
 % special case for exponential nonlinearity (the CANONICAL LINK)
 
 m = numel(wts);
-xproj = x*wts;
+xproj = wts' * x; % row vector
 f = exp(xproj);
 
 switch choice
     case 1
-        L = -y' * xproj + sum(f);
+        L = -xproj * y' + sum(f);
     case 2
         L = zeros(m+1, 1);
-        L(1) = -y' * xproj + sum(f);
-        L(1 + (1:m)) = x' * (f - y);
+        L(1) = -xproj * y' + sum(f);
+        L(1 + (1:m)) = (f - y) * x';
     case 3
         L = zeros(m^2+m+1, 1);
-        L(1) = -y' * xproj + sum(f);
-        L(1 + (1:m)) = x' * (f - y);
-	H = x' * bsxfun(@times, x, f);
+        L(1) = -xproj * y' + sum(f);
+        L(1 + (1:m)) = (f - y) * x';
+	H = bsxfun(@times, f, x) * x';
+	% H = zeros(m); % devectorizing is super slow... :'(
+	% for k = 1:size(x, 2)
+	%     H = H + x(:, k) * f(k) * x(:, k)';
+	% end
         L(m+2:end) = H(:);
 end
 end % neglogli_poissGLM_sub_exp

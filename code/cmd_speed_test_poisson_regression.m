@@ -15,13 +15,18 @@ y = poissrnd(lambda);
 w0 = zeros(numel(wTrue)+1, 1);
 fprintf('Mean [%f], Sparsity [%f]\n', mean(y), nnz(y)/N);
 
+% for k = 1:100
+%     [L, dL, ddL] = neglogli_poissGLM_zaso(w0, zaso, fnlin);
+%     disp(k)
+% end
+
 %%%%%%%%%%%%%%%%%%%%%%% Regression Time %%%%%%%%%%%%%%%%%%%%%%%
 
 %% zaso version
 % TODO why the hell do I need to transpose????
 disp('>>> zaso, fminunc');
 tic;
-zaso = encapsulateRaw([x; ones(1,N)]', y'); 
+zaso = encapsulateRaw([x; ones(1,N)], y, [], [], true);
 
 optimOpts = optimoptions(@fminunc, ...
     'GradObj', 'on', 'Hessian', 'on', 'Display', 'off');
@@ -39,7 +44,7 @@ if exist('minFunc') ~= 2
 end
 % addpath('~/pillowlab/lib/minFunc_2012/minFunc/');
 tic;
-zaso = encapsulateRaw([x; ones(1,N)]', y'); 
+zaso = encapsulateRaw([x; ones(1,N)], y, [], [], true);
 
 opts1 = struct('maxFunEvals', 100, 'Method', 'newton', 'display', 'none');
 [wOpt2, nLL2, exitflag2, output2] = minFunc(...

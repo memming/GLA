@@ -4,12 +4,12 @@ function zaso = encapsulateRaw(X, Y, bX, bY, isBulkProcess)
 % Use this file as a template to create a new custom encapsuation procedure.
 %
 % Input:
-%   X: (N x dx) N samples from the indepenent variables
-%   Y: (N x dy) corresponding samples from the dependent variables
-%   bX: @(X(idx,:)) -> (numel(idx) x dimx) feature transformation
+%   X: (dx x N) N samples from the indepenent variables
+%   Y: (dy x N) corresponding samples from the dependent variables
+%   bX: @(X(idx,:)) -> (dimx x numel(idx)) feature transformation
 %	bX can take cell array, in which case X should be a cell array
 %	bX must return consistent feature dimension
-%   bY: @(Y(idx,:)) -> (numel(idx) x dimy) feature transformation similar to bX
+%   bY: @(Y(idx,:)) -> (dimy x numel(idx)) feature transformation similar to bX
 %   isBulkProcess: (logical/optional) defaut: false
 %	If false, basic behavior is mini-batch computation.
 %	If true, full matrix is used all the time, and zasoIdx arguments are
@@ -17,11 +17,9 @@ function zaso = encapsulateRaw(X, Y, bX, bY, isBulkProcess)
 %
 % Output:
 %   zaso: ZASO!
-%
-% $Id$
 
-[nx, mx] = size(X);
-[ny, my] = size(Y);
+[mx, nx] = size(X);
+[my, ny] = size(Y);
 assert(nx == ny, '# of samples mismatch');
 assert(nx > 0, 'must have at least 1 sample');
 zaso.N = nx;
@@ -31,26 +29,26 @@ zaso.sub2idx = @(x) x;
 if nargin > 2 && ~isempty(bX)
     if isa(bX, 'function_handle')
 	zaso.bX = bX;
-	zaso.X = @(idx) bX(X(idx,:));
-	zaso.dimx = size(bX(X(1,:)), 2);
+	zaso.X = @(idx) bX(X(:, idx));
+	zaso.dimx = size(bX(X(:,1)), 1);
     else
 	error('bX must be a function_handle');
     end
 else
-    zaso.X = @(idx) X(idx,:);
+    zaso.X = @(idx) X(:, idx);
     zaso.dimx = mx;
 end
 
 if nargin > 3 && ~isempty(bY)
     if isa(bY, 'function_handle')
 	zaso.bY = bY;
-	zaso.Y = @(idx) bY(Y(idx,:));
-	zaso.dimy = size(bY(Y(1,:)), 2);
+	zaso.Y = @(idx) bY(Y(:, idx));
+	zaso.dimy = size(bY(Y(:, 11)), 1);
     else
 	error('bY must be a function_handle');
     end
 else
-    zaso.Y = @(idx) Y(idx,:);
+    zaso.Y = @(idx) Y(:, idx);
     zaso.dimy = my;
 end
 
@@ -61,7 +59,6 @@ else
 end
 
 zaso.desc = sprintf('%s(%s)', mfilename, datestr(now, 30));
-zaso.Id = '$Id$';
 
 if zaso.isBulkProcess
     % save the full matrix X and Y for all indices
