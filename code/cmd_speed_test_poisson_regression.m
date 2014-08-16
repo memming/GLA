@@ -4,8 +4,10 @@ addpath('zaso');
 addpath('nlfuns');
 
 %% Generate fake data
-m = 2000; % # of variables
-N = 5000;
+%m = 2000; % # of variables
+%N = 5000;
+m = 100; % # of variables
+N = 1e5;
 wTrue = sin((1:m)'/10)/10;
 x = randn(m, N);
 bTrue = -3;
