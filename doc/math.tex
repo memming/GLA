@@ -144,7 +144,7 @@ Here are some examples:
     \label{eq:prior:ASD}
 \end{align}
 
-Often the stimulus is concatenation of independent sources, and hence pieces of the weight vector $\weight$ require separate hyperparameters which results in a block diagonal $C(\hyp)$ (and $C(\hyp)\inv$).
+Often the stimulus is concatenation of independent sources, and hence pieces of the weight vector $\weight$ require separate hyperparameters which results in a block diagonal $C(\hyp)$ (and $C\inv(\hyp)$).
 
 \section{Posterior inference}
 \subsection{Gaussian likelihood}
@@ -154,7 +154,7 @@ For gaussian likelihood and identity inverse link, the posterior is Guassian, st
     \label{eq:posterior:Gaussian}
     \\
     \mu &= \frac{1}{\sigma^2}\Lambda \sum_i \vx_i y_i\\
-    \Lambda &= \left(\frac{1}{\sigma^2}\sum_i \vx_i \vx_i\trp + C(\hyp)\inv\right)\inv
+    \Lambda &= \left(\frac{1}{\sigma^2}\sum_i \vx_i \vx_i\trp + C\inv(\hyp)\right)\inv
 \end{align}
 
 \subsection{General case}
@@ -182,9 +182,35 @@ The simplest Gaussian approximation of the posterior is to use the Laplace appro
 	-\frac{\partial^2}{\partial \weight \partial \weight}
 	\log\likelihood
 	\right\vert_{\weight = \weight^\ast}
-	+ C(\hyp)\inv
+	\\
+	&=
+	- H(\weight^\ast)
+	+ C\inv(\hyp)
+	\label{eq:posterior:Laplace:invCov}
+	\\
+    \Lambda &=
+	- H\inv(\weight^\ast)
+	\left(
+	    C(\hyp)
+	    - H\inv (\weight^\ast)
+	\right)\inv
+	C(\hyp)
+	\label{eq:posterior:Laplace:noInverse}
 \end{align}
+where 
+$ H(\weight) = 
+    -\frac{\partial^2}{\partial \weight \partial \weight}
+    \log\likelihood$ is the Hessian of the log-likelihood.
+Depending on the formulation of the prior covariance, and rank-deficiency of $H(\weight^\ast), C(\theta)$ or $C\inv(\theta)$, either \eqref{eq:posterior:Laplace:invCov} or \eqref{eq:posterior:Laplace:noInverse} would be more useful.
 
 \section{Evidence optimization}
+To obtain the hyperparameters, we integrate over the parameters to get the marginal likelihood function, or better yet, we use the Bayes' rule:
+\begin{align}
+    \mathcal{E}(\hyp) = \log p(y|x,\hyp)
+	= \log\prior - \log\posterior + \log\likelihood
+\end{align}
+for any $\weight$.
+
+\subsection{Gaussian}
 
 \end{document}
