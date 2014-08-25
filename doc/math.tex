@@ -60,7 +60,10 @@ There are two general principles for point estimation that we follow.
     \item We aim to infer the hyperparameters using evidence optimization (a.k.a. Type-II ML, or empirical Bayes):
 	\begin{align}
 	    \hyp^\ast = \argmax_{\hyp} p(y|x,\hyp)
-		= \argmax_{\hyp} [\log\prior - \log\posterior].
+		= \argmax_{\hyp} 
+		[
+		\log\prior - \log\posterior + \log\likelihood
+		].
 	\end{align}
     \item We aim to infer the \textit{maximum a posteriori} (MAP) parameters given the hyperparameter:
 	\begin{align}
