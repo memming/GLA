@@ -202,7 +202,7 @@ The simplest Gaussian approximation of the posterior is to use the Laplace appro
 \end{align}
 where 
 $ H(\weight) = 
-    -\frac{\partial^2}{\partial \weight \partial \weight}
+    \frac{\partial^2}{\partial \weight \partial \weight}
     \log\likelihood$ is the Hessian of the log-likelihood.
 Depending on the formulation of the prior covariance, and rank-deficiency of $H(\weight^\ast), C(\theta)$ or $C\inv(\theta)$, either \eqref{eq:posterior:Laplace:invCov} or \eqref{eq:posterior:Laplace:noInverse} would be more useful.
 
