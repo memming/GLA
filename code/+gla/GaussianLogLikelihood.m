@@ -22,7 +22,7 @@ classdef GaussianLogLikelihood < gla.LogLikelihood
 	end
 
 	% derivatives with respect to h
-	function [L, dL_h, ddL_h] = loglikelihood_h(x, y, w, h);
+	function [L, dL_h, ddL_h] = loglikelihood_h(x, y, w, h)
 	    N = size(x, 2);
 	    residual = x' * w - y;
 	    mse = residual' * residual / N;
