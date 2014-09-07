@@ -90,7 +90,7 @@ We support three basic types of observation models.
 	\sum_i y_i \log \inverseLink(\weight\trp\vx_i)
 	-
 	\sum_i \inverseLink(\weight\trp\vx_i)
-	+ \sum_i y_i!
+	+ \sum_i \log(y_i!)
 	\qquad 
 	&\text{\it Poisson}
     \label{eq:likelihood:Poisson}
@@ -210,7 +210,9 @@ Depending on the formulation of the prior covariance, and rank-deficiency of $H(
 To obtain the hyperparameters, we integrate over the parameters to get the marginal likelihood function, or better yet, we use the Bayes' rule:
 \begin{align}
     \mathcal{E}(\hyp) = \log p(y|x,\hyp)
-	= \log\prior - \log\posterior + \log\likelihood
+	&= \log\prior - \log\posterior + \log\likelihood
+	\\
+	&= \log \int \prior\,\likelihood \mathrm{d}\weight
 \end{align}
 for any $\weight$.
 
