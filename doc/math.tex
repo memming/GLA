@@ -90,7 +90,7 @@ We support three basic types of observation models.
 	\sum_i y_i \log \inverseLink(\weight\trp\vx_i)
 	-
 	\sum_i \inverseLink(\weight\trp\vx_i)
-	+ \sum_i \log(y_i!)
+	+ \sum_i \log y_i!
 	\qquad 
 	&\text{\it Poisson}
     \label{eq:likelihood:Poisson}
@@ -211,12 +211,60 @@ To obtain the hyperparameters, we integrate over the parameters to get the margi
 \begin{align}
     \mathcal{E}(\hyp) = \log p(y|x,\hyp)
 	&= \log\prior - \log\posterior + \log\likelihood
+	\label{eq:evidence:bayes}
 	\\
-	&= \log \int \prior\,\likelihood \mathrm{d}\weight
+	&= \log \int \prior\,\likelihood \mathrm{d}\weight.
+	\label{eq:evidence:marginal}
 \end{align}
-for any $\weight$.
+Note that \eqref{eq:evidence:bayes} holds for any $\weight$.
 
 \subsection{Gaussian}
-Even for $\textcolor{red}{\sigma^2}$, the update is complex except for the Ridge prior. (Maybe Expectation-Maximization is easier to implement?)
+For reasons that will be clear later, let's assume the likelihood is a general multivaraite linear Gaussian form $\likelihood = \Gaussian(y; x\trp \weight, \Phi)$, where $x$ is a $d \times N$ design matrix.
+In this case, we have a closed form for the evidence integral in~\eqref{eq:evidence:marginal}.
+\begin{align}
+    &p(y|x,\hyp) \nonumber\\
+    &\quad=
+    \frac{|2\pi\Sigma|^{\frac{1}{2}}}
+    {|2\pi C|^{\frac{1}{2}} |2\pi \Phi|^{\frac{1}{2}}}
+    \exp\left(
+	-\frac{1}{2}
+	\left[
+	    b\trp C\inv b + y\trp\Phi\inv y
+	    - (C\inv b + x\Phi\inv y)\trp 
+		\Sigma
+		(C\inv b + x\Phi\inv y)
+	\right]
+    \right)
+\end{align}
+where $\Sigma = \left( C\inv + x\Phi\inv x\trp \right)\inv$.
+
+The usual special case is when $b = 0$ and $\Phi = \sigma^2 I$ which gives,
+\begin{align}
+    p(y|x,\hyp) =
+    \frac{|2\pi\Sigma|^{\frac{1}{2}}}
+    {|2\pi C|^{\frac{1}{2}} |2\pi \sigma^2 I|^{\frac{1}{2}}}
+    \exp\left(
+	-\frac{1}{2}
+	\left[
+	    y\trp 
+	    \left(
+		\frac{I}{\sigma^2}
+		-
+		\frac{
+		    x\trp 
+		    \Sigma
+		    x
+		}{\sigma^4}
+	    \right)
+	    y
+	\right]
+    \right)
+\end{align}
+where $\Sigma = \left( C\inv + \frac{1}{\sigma^2}x x\trp \right)\inv$ which agrees with~\cite{Sahani2002}.
+
+% TODO write out the log-evidence and take partials of params wrt hyp-params
+
+\bibliographystyle{plain}
+\bibliography{gla}
 
 \end{document}
