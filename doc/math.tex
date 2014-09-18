@@ -156,7 +156,7 @@ For gaussian likelihood and identity inverse link, the posterior is Guassian, st
     \posterior &= \Gaussian(\mu, \Lambda)
     \label{eq:posterior:Gaussian}
     \\
-    \mu &= \frac{1}{\sigma^2}\Lambda \sum_i \vx_i y_i\\
+    \mu &= \Lambda\left(C\inv(\hyp)\vb + \frac{1}{\sigma^2}\sum_i \vx_i y_i\right)\\
     \Lambda &= \left(\frac{1}{\sigma^2}\sum_i \vx_i \vx_i\trp + C\inv(\hyp)\right)\inv
 \end{align}
 
@@ -224,24 +224,24 @@ In this case, we have a closed form for the evidence integral in~\eqref{eq:evide
 \begin{align}
     &p(y|x,\hyp) \nonumber\\
     &\quad=
-    \frac{|2\pi\Sigma|^{\frac{1}{2}}}
+    \frac{|2\pi\Lambda|^{\frac{1}{2}}}
     {|2\pi C|^{\frac{1}{2}} |2\pi \Phi|^{\frac{1}{2}}}
     \exp\left(
 	-\frac{1}{2}
 	\left[
-	    b\trp C\inv b + y\trp\Phi\inv y
-	    - (C\inv b + x\Phi\inv y)\trp 
-		\Sigma
-		(C\inv b + x\Phi\inv y)
+	    \vb\trp C\inv \vb + y\trp\Phi\inv y
+	    - (C\inv \vb + x\Phi\inv y)\trp 
+		\Lambda
+		(C\inv \vb + x\Phi\inv y)
 	\right]
     \right)
 \end{align}
-where $\Sigma = \left( C\inv + x\Phi\inv x\trp \right)\inv$.
+where $\Lambda = \left( C\inv + x\Phi\inv x\trp \right)\inv$.
 
-The usual special case is when $b = 0$ and $\Phi = \sigma^2 I$ which gives,
+The usual special case is when $\vb = 0$ and $\Phi = \sigma^2 I$ which gives,
 \begin{align}
     p(y|x,\hyp) =
-    \frac{|2\pi\Sigma|^{\frac{1}{2}}}
+    \frac{|2\pi\Lambda|^{\frac{1}{2}}}
     {|2\pi C|^{\frac{1}{2}} |2\pi \sigma^2 I|^{\frac{1}{2}}}
     \exp\left(
 	-\frac{1}{2}
@@ -252,7 +252,7 @@ The usual special case is when $b = 0$ and $\Phi = \sigma^2 I$ which gives,
 		-
 		\frac{
 		    x\trp 
-		    \Sigma
+		    \Lambda
 		    x
 		}{\sigma^4}
 	    \right)
@@ -260,7 +260,7 @@ The usual special case is when $b = 0$ and $\Phi = \sigma^2 I$ which gives,
 	\right]
     \right)
 \end{align}
-where $\Sigma = \left( C\inv + \frac{1}{\sigma^2}x x\trp \right)\inv$ which agrees with~\cite{Sahani2002}.
+where $\Lambda = \left( C\inv + \frac{1}{\sigma^2}x x\trp \right)\inv$ which agrees with~\cite{Sahani2002}.
 
 % TODO write out the log-evidence and take partials of params wrt hyp-params
 
