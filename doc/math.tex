@@ -222,21 +222,20 @@ Note that \eqref{eq:evidence:bayes} holds for any $\weight$.
 For reasons that will be clear later, let's assume the likelihood is a general multivaraite linear Gaussian form $\likelihood = \Gaussian(y; x\trp \weight, \Phi)$, where $x$ is a $d \times N$ design matrix.
 In this case, we have a closed form for the evidence integral in~\eqref{eq:evidence:marginal}.
 \begin{align}
-    &p(y|x,\hyp) \nonumber\\
-    &\quad=
+p(y|x,\hyp) =
     \frac{|2\pi\Lambda|^{\frac{1}{2}}}
     {|2\pi C|^{\frac{1}{2}} |2\pi \Phi|^{\frac{1}{2}}}
     \exp\left(
 	-\frac{1}{2}
 	\left[
 	    \vb\trp C\inv \vb + y\trp\Phi\inv y
-	    - (C\inv \vb + x\Phi\inv y)\trp 
-		\Lambda
-		(C\inv \vb + x\Phi\inv y)
+	    - \mu\trp \Lambda \mu
 	\right]
     \right)
 \end{align}
-where $\Lambda = \left( C\inv + x\Phi\inv x\trp \right)\inv$.
+where 
+$\mu = C\inv \vb + x\Phi\inv y$ and
+$\Lambda = \left( C\inv + x\Phi\inv x\trp \right)\inv$ are MAP solutions.
 
 The usual special case is when $\vb = 0$ and $\Phi = \sigma^2 I$ which gives,
 \begin{align}
