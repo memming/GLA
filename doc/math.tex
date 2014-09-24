@@ -30,6 +30,7 @@
 
 \DeclareMathOperator*{\argmax}{\rm argmax}
 \DeclareMathOperator*{\argmin}{\rm argmin}
+\DeclareMathOperator*{\tr}{tr}
 
 \newcommand{\inv}{^{-1}}
 \newcommand{\trp}{{^\top}} % transpose
@@ -210,7 +211,7 @@ Depending on the formulation of the prior covariance, and rank-deficiency of $H(
 To obtain the hyperparameters, we integrate over the parameters to get the marginal likelihood function, or better yet, we use the Bayes' rule:
 \begin{align}
     \mathcal{E}(\hyp) = \log p(y|x,\hyp)
-	&= \log\prior - \log\posterior + \log\likelihood
+	&= \log\prior + \log\likelihood - \log\posterior 
 	\label{eq:evidence:bayes}
 	\\
 	&= \log \int \prior\,\likelihood \mathrm{d}\weight.
@@ -218,7 +219,7 @@ To obtain the hyperparameters, we integrate over the parameters to get the margi
 \end{align}
 Note that \eqref{eq:evidence:bayes} holds for any $\weight$.
 
-\subsection{Gaussian}
+\subsection{Gaussian likelihood}
 For reasons that will be clear later, let's assume the likelihood is a general multivaraite linear Gaussian form $\likelihood = \Gaussian(y; x\trp \weight, \Phi)$, where $x$ is a $d \times N$ design matrix.
 In this case, we have a closed form for the evidence integral in~\eqref{eq:evidence:marginal}, which is the same as plugging in $\weight = 0$ in~\eqref{eq:evidence:bayes}.
 \begin{align}
@@ -261,7 +262,35 @@ The usual special case is when $\vb = 0$ and $\Phi = \sigma^2 I$ which gives,
 \end{align}
 where $\Lambda = \left( C\inv + \frac{1}{\sigma^2}x x\trp \right)\inv$ which agrees with~\cite{Sahani2002}.
 
-% TODO write out the log-evidence and take partials of params wrt hyp-params
+The log-evidence is,
+\begin{align}
+\log p(y|x,\hyp) 
+&=
+    -\frac{1}{2}
+    \bigl(
+	\log|C|
+	+ \log|2\pi\Phi|
+	- \log|\Lambda|
+	+ \vb\trp C\inv \vb
+	+ y\trp\Phi\inv y
+	- \mu\trp \Lambda \mu
+    \bigr)
+    \\
+&=
+    -\frac{1}{2}
+    \bigl(
+	\log|C|
+	+ \log|2\pi\Phi|
+	- \log|\Lambda|
+	+ \tr(C\inv \vb \vb\trp)
+	+ \tr(\Phi\inv y y\trp)
+	- \tr(\Lambda \mu \mu\trp)
+    \bigr).
+\end{align}
+
+% TODO take partials of params wrt hyp-params
+
+\section{General case}
 
 \bibliographystyle{plain}
 \bibliography{gla}
