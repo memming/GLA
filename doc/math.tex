@@ -220,7 +220,7 @@ Note that \eqref{eq:evidence:bayes} holds for any $\weight$.
 
 \subsection{Gaussian}
 For reasons that will be clear later, let's assume the likelihood is a general multivaraite linear Gaussian form $\likelihood = \Gaussian(y; x\trp \weight, \Phi)$, where $x$ is a $d \times N$ design matrix.
-In this case, we have a closed form for the evidence integral in~\eqref{eq:evidence:marginal}.
+In this case, we have a closed form for the evidence integral in~\eqref{eq:evidence:marginal}, which is the same as plugging in $\weight = 0$ in~\eqref{eq:evidence:bayes}.
 \begin{align}
 p(y|x,\hyp) =
     \frac{|2\pi\Lambda|^{\frac{1}{2}}}
